@@ -44,13 +44,13 @@ def get_window_rowids(rowid,n):
 	n=int(n)
 	play,ftln,play_line=get_rowid_info(rowid)
 	play_min_rowid,play_max_rowid=get_play_boundaries(play)
-	print(play_min_rowid,play_max_rowid)
+# 	print(play_min_rowid,play_max_rowid)
 	if rowid+n>play_max_rowid:
 		startline_rowid=play_max_rowid-n
 	else:
 		startline_rowid=rowid
 	endline_rowid=startline_rowid+n
-	print(startline_rowid,endline_rowid)
+# 	print(startline_rowid,endline_rowid)
 	return [i for i in range(startline_rowid,endline_rowid+1)]
 
 def get_rowid_info(rowid):
@@ -72,8 +72,8 @@ def get_passage(rowid,n=10,maintext=True):
 		n=play_endline_rowid-play_startline_rowid	
 	query="SELECT rowid,ftln,line_text,play,line FROM play_lines WHERE rowid >= ? AND rowid < ? order by ftln asc"
 	data=[(int(rowid),int(rowid)+n)]
-	if maintext==True:
-	    print(query,data)
+# 	if maintext==True:
+# 	    print(query,data)
 	cursor.execute(query,data[0])
 	passage_text=cursor.fetchall()
 	pretty_line_html = ''
