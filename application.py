@@ -5,9 +5,7 @@ import os
 import sqlite3
 import time
 
-application = app = Flask(__name__)
-
-
+app = Flask(__name__)
 
 def format_title(title):
 	formatted_title = re.sub("_"," ",title)
@@ -33,7 +31,9 @@ def get_random_play():
 def get_play_boundaries(play):
 	cnx=sqlite3.connect('ariel.db')
 	cursor = cnx.cursor()
-	query="select startline_id,endline_id from play_boundary where play='%s'" %play
+	if not re.match("[a-z|_|0-9]+",play):
+		play="as_you_like_it"
+	query=f"select startline_id,endline_id from play_boundary where play='{play}'"
 	cursor.execute(query)
 	play_boundaries=cursor.fetchone()
 	cnx.close()
@@ -107,8 +107,7 @@ def get_passage(rowid,n=10,maintext=True):
 def get_articles(source,target,n):
 	cnx=sqlite3.connect('ariel.db')
 	cursor = cnx.cursor()
-	match_table = 'docs_%d' %n
-	query="select docs from %s where source_id = %s and target_id = %s" %(match_table,source,target)
+	query="select docs from docs_%d where source_id = %d and target_id = %s" %(int(n),int(source),int(target))
 	cursor.execute(query)
 	doc_rowids=cursor.fetchone()
 	html_block = ''
@@ -127,7 +126,9 @@ def get_articles(source,target,n):
 def get_play_boundaries(play):
 	cnx=sqlite3.connect('ariel.db')
 	cursor = cnx.cursor()
-	query="select startline_id,endline_id from play_boundary where play='%s'" %play
+	if not re.match("[a-z|_|0-9]+",play):
+		play="as_you_like_it"
+	query=f"select startline_id,endline_id from play_boundary where play='{play}'"
 	play_boundaries = cursor.execute(query)
 	play_boundaries=cursor.fetchone()
 	cnx.close()
@@ -140,7 +141,9 @@ def get_gamestate_link(rowid,n=10):
 def ariel(passage_start_rowid,n=10,k=10):
 	cnx=sqlite3.connect('ariel.db')
 	cursor = cnx.cursor()
-	match_table = 'matches_%d' %n
+	if not type(n)==int:
+		n=10
+	match_table = f'matches_{n}'
 	match_passages=[]
 	passage_start_rowid=min(get_window_rowids(passage_start_rowid,n))
 	searchstring = "SELECT * FROM " + match_table + " WHERE source_id = ?"
@@ -233,5 +236,5 @@ def get_selection(rowid,n):
 	return json.dumps({"s":selection})
 
 if __name__ == "__main__":
-	application.run()
+	app.run(host='0.0.0.0')
 
